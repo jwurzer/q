@@ -29,7 +29,6 @@ namespace cycfi::q
 
    private:
 
-      bool                    within_octave(float f) const;
       void                    compute_predicted_frequency() const;
 
       using mean_filter = exp_moving_average<8>;
@@ -57,12 +56,6 @@ namespace cycfi::q
    {
    }
 
-   inline bool dual_pitch_detector::within_octave(float f) const
-   {
-      auto mean = _mean();
-      return (f > mean)? f < (mean * 2) : f > (mean / 2);
-   }
-
    inline bool dual_pitch_detector::operator()(float s)
    {
       bool pd1_ready = _pd1(s);
@@ -87,7 +80,7 @@ namespace cycfi::q
                _first = false;
                _predicted_frequency = 0.0f;
             }
-            else if (within_octave(i.frequency))
+            else
             {
                _current = i;
                _mean(_current.frequency);
@@ -120,14 +113,11 @@ namespace cycfi::q
          auto f2 = _pd2.predict_frequency();
          if (f2 > 0.0f)
          {
-            auto error = f1 / 10; // $$$ approx 1/2 semitone
+            auto error = f1 / 10; // within 1/10th error
             if (std::abs(f1-f2) < error)
             {
-               if (_first || within_octave(f1))
-               {
-                  _predicted_frequency = f1;
-                  return;
-               }
+               _predicted_frequency = f1;
+               return;
             }
          }
       }
