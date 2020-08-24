@@ -6,6 +6,7 @@
 #if !defined(CYCFI_Q_PERIOD_DETECTOR_HPP_MARCH_12_2018)
 #define CYCFI_Q_PERIOD_DETECTOR_HPP_MARCH_12_2018
 
+#include <q/options.hpp>
 #include <q/utility/bitset.hpp>
 #include <q/utility/zero_crossing.hpp>
 #include <q/utility/bitstream_acf.hpp>
@@ -89,10 +90,12 @@ namespace cycfi::q
     , _mid_point(_zc.window_size() / 2)
     , _period_diff_threshold(_mid_point * periodicity_diff_factor)
    {
+#ifdef ENABLE_EXCEPTIONS
       if (highest_freq <= lowest_freq)
          throw std::runtime_error(
             "Error: highest_freq <= lowest_freq."
          );
+#endif
    }
 
    inline void period_detector::set_bitstream()
